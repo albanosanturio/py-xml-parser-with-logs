@@ -8,6 +8,7 @@ import os # For file management
 import time as _time # For tracking runtime
 import pytz # For timezones
 import logging
+import json
 
 import csv
 
@@ -47,6 +48,17 @@ input_path = "C:\\Users\\U355445\\Documents\\AMI Filter\\NY_in"
 output_path = "C:\\Users\\U355445\\Documents\\AMI Filter\\test"
 error_path = '\\\clornas01\\Uplight\\NY\\errors'
 log_path = '\\\clornas01\\Uplight\\NY\\logs'
+
+# Pulling paths from external config file
+f = open('config.json')
+data = json.load(f)
+input_path = data['paths']['input_path']
+output_path = data['paths']['output_path']
+error_path = data['paths']['error_path']
+log_path = data['paths']['log_path']
+f.close()
+
+
 log_filename = os.path.join(log_path, 'avangrid-energymanager-nyseg_intervalusage_uat_log_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.log')
 
 #date_folders = ['2023-04-19']
