@@ -1,0 +1,8 @@
+{
+    "paths": {
+        "input_path": "C:\\Users\\asanturi\\Documents\\energy-mgmt\\repo\\in",
+        "output_path": "C:\\Users\\asanturi\\Documents\\energy-mgmt\\repo\\out",
+        "error_path": "C:\\Users\\asanturi\\Documents\\energy-mgmt\\repo\\errors",
+        "log_path": "C:\\Users\\asanturi\\Documents\\energy-mgmt\\repo\\logs"
+    }
+}
