@@ -2,6 +2,7 @@
 import xml.etree.cElementTree as Xet # For parsing XML element tree
 import pandas as pd # For loading the list of data into .tsv easily
 from datetime import timedelta, datetime # For date/time formatting
+import utils
 import sys # For file management
 import hashlib # For getting the md5 checksum of a file
 import os # For file management
@@ -9,7 +10,7 @@ import time as _time # For tracking runtime
 import pytz # For timezones
 import logging
 import json
-
+import sys
 import csv
 
 # Sets the correct timezone for the interval times.
@@ -21,42 +22,33 @@ def dt_parse(t):
 start = _time.time()
 
 
-#Create hash tables
-'''
-hash_meter_ids ={}
-counter = 0
-with open("NY_meters.csv","r") as file:
-    reader = csv.reader(file,lineterminator="\n",delimiter=",")
-    for row in reader:
-        if counter == 0:
-            hash_meter_ids[hash(str(row[0]).replace("'",""))] = str(row[0]).replace("'","")
-            counter += 1
-        else:
-            hash_meter_ids[hash(str(row[0]).replace("'",""))] = str(row[0]).replace("'","")
-'''
-
 # Interval data file column headers. Comes from Uplight spec.
 cols = ["service_point_id", "meter_id", "timestamp", "timezone", "interval_value", "interval_units", "usage", "energy_type", "energy_units", "energy_direction", "is_estimate", "is_outage", "channel_id", "is_deleted", "update_datetime"]
 rows = []
 error_channel_id_rows = []
 error_meter_id_rows = []
 
-# Directories for input/output files.
-#input_path = '\\\clornas01\\Uplight\\NY\\in'
-#output_path = '\\\clornas01\\Uplight\\NY\\out\\test_results'
-#input_path = "C:\\Users\\U355445\\Documents\\AMI Filter\\NY_in"
-#output_path = "C:\\Users\\U355445\\Documents\\AMI Filter\\test"
-#error_path = '\\\clornas01\\Uplight\\NY\\errors'
-#log_path = '\\\clornas01\\Uplight\\NY\\logs'
 
-# Pulling paths from external config file
+# NTT:
+# Pulling paths from external config file (config.json)
 f = open('config.json')
 data = json.load(f)
 input_path = data['paths']['input_path']
 output_path = data['paths']['output_path']
 error_path = data['paths']['error_path']
 log_path = data['paths']['log_path']
+approved_ids_path = data['paths']['approved_ids_path']
 f.close()
+
+# NTT:
+# Parse the arguments given to the script
+# Create a list of selected_ids based on the file provided, and filtered by selected opco
+opco = utils.parse_opco()
+approved_path = "C:\\Users\\asanturi\\Documents\\energy-mgmt\\repo\\approved_ids"
+selected_ids_df = utils.approved_meters2(opco,approved_ids_path)
+selected_ids = set(selected_ids_df['Meterid'])
+#selected_ids = utils.approved_meters(opco,".\meters_data2.csv")
+
 
 log_filename = os.path.join(log_path, 'avangrid-energymanager-nyseg_intervalusage_uat_log_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.log')
 
@@ -106,7 +98,7 @@ for filename in os.listdir(input_path):
     fullname = os.path.join(input_path, filename) # Filename including the folder path.
     
     ################
-    # get an iterable of the xml tree.
+    # get an iterable of the xml tree. iterparse returns an iterator providing (event, elem) pairs.
     context = Xet.iterparse(fullname, events=("start", "end"))
 
     path = [] # Will hold the XML tree path as elements are iterated over
@@ -152,6 +144,7 @@ for filename in os.listdir(input_path):
                     #service_point_id = elem.attrib['ServicePointChannelID'].split(':')[0]
                     meter_id = elem.attrib['ServicePointChannelID'].split(':')[0]
                     channel_id = int(elem.attrib['ServicePointChannelID'].split(':')[1])
+                    #if meter_id not in(selected_ids): continue #NTT: check if id is on approved list, if not, skip
                     #try:
                     #    meter_id = hash_meter_ids[hash(service_point_id)]
                     #except KeyError:
@@ -160,9 +153,10 @@ for filename in os.listdir(input_path):
                 elif 'IntervalChannelID' in elem.attrib: # Get the meter ID.
                     meter_id = elem.attrib['IntervalChannelID'].split(':')[0]
                     channel_id = int(elem.attrib['IntervalChannelID'].split(':')[1])
+                    #if meter_id not in(selected_ids): continue #NTT: check if id is on approved list, if not, skip
                 else:
                     error = 'service point or meter ID not in XML file' # This error message will prevent the record from saving.
-                
+
                 # Energy direction mapping.
                 if channel_id == 1 or channel_id == 101:
                     energy_units = 'kWh'
@@ -244,9 +238,12 @@ for filename in os.listdir(input_path):
                     # Declare data rows to be written to the file.
                     df = pd.DataFrame(rows, columns=cols)
                     #Drop '600..' meter ids as they are service point ids
-                    df.drop(df[str(df['meter_id']).startswith('600')].index)
+                    #df.drop(df[str(df['meter_id']).startswith('600')].index)
+                    # df_filtered = df.drop(df[str(df['meter_id']).startswith('600')].index)
                     # Appends the data rows to the tsv file.
-                    df.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
+                    dffilter = df.loc[df['meter_id'].isin(selected_ids)]
+                    #dffilter = df 
+                    dffilter.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
                     # Header flag turns false after the first iteration.
                     header = False
                     
@@ -309,7 +306,10 @@ for filename in os.listdir(input_path):
         #Remove '600' ids as they are service point ids
         #df.drop(df[str(df['meter_id']).startswith('600')].index)
         # Appends the data rows to the tsv file.
-        df.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
+        #df.drop(df[str(df['meter_id']).startswith('600')].index)
+        dffilter = df.loc[df['meter_id'].isin(selected_ids)]
+        #dffilter = df 
+        dffilter.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
         # Header flag turns false after the first iteration.
         header = False
         
