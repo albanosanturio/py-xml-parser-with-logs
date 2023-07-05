@@ -2,7 +2,6 @@
 import xml.etree.cElementTree as Xet # For parsing XML element tree
 import pandas as pd # For loading the list of data into .tsv easily
 from datetime import timedelta, datetime # For date/time formatting
-import utils
 import sys # For file management
 import hashlib # For getting the md5 checksum of a file
 import os # For file management
@@ -10,8 +9,7 @@ import time as _time # For tracking runtime
 import pytz # For timezones
 import logging
 import json
-import sys
-import numpy as np
+
 import csv
 
 # Sets the correct timezone for the interval times.
@@ -23,35 +21,44 @@ def dt_parse(t):
 start = _time.time()
 
 
+#Create hash tables
+'''
+hash_meter_ids ={}
+counter = 0
+with open("NY_meters.csv","r") as file:
+    reader = csv.reader(file,lineterminator="\n",delimiter=",")
+    for row in reader:
+        if counter == 0:
+            hash_meter_ids[hash(str(row[0]).replace("'",""))] = str(row[0]).replace("'","")
+            counter += 1
+        else:
+            hash_meter_ids[hash(str(row[0]).replace("'",""))] = str(row[0]).replace("'","")
+'''
+
 # Interval data file column headers. Comes from Uplight spec.
 cols = ["service_point_id", "meter_id", "timestamp", "timezone", "interval_value", "interval_units", "usage", "energy_type", "energy_units", "energy_direction", "is_estimate", "is_outage", "channel_id", "is_deleted", "update_datetime"]
 rows = []
 error_channel_id_rows = []
 error_meter_id_rows = []
 
+# Directories for input/output files.
+#input_path = '\\\clornas01\\Uplight\\NY\\in'
+#output_path = '\\\clornas01\\Uplight\\NY\\out\\test_results'
+#input_path = "C:\\Users\\U355445\\Documents\\AMI Filter\\NY_in"
+#output_path = "C:\\Users\\U355445\\Documents\\AMI Filter\\test"
+#error_path = '\\\clornas01\\Uplight\\NY\\errors'
+#log_path = '\\\clornas01\\Uplight\\NY\\logs'
 
-# NTT:
-# Pulling paths from external config file (config.json)
+# Pulling paths from external config file
 f = open('config.json')
 data = json.load(f)
 input_path = data['paths']['input_path']
 output_path = data['paths']['output_path']
 error_path = data['paths']['error_path']
 log_path = data['paths']['log_path']
-approved_ids_path = data['paths']['approved_ids_path']
 f.close()
 
-# NTT:
-# Parse the arguments given to the script
-# Create a list of selected_ids based on the file provided, and filtered by selected opco
-opco = utils.parse_opco()
-selected_ids_df = utils.approved_meters2(opco,approved_ids_path)
-selected_ids = set(selected_ids_df['Meterid'])
-#print(selected_ids_df)
-#selected_ids = utils.approved_meters(opco,".\meters_data2.csv")
-
-
-log_filename = os.path.join(log_path, 'avangrid-energymanager-'+opco+'_intervalusage_uat_log_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.log')
+log_filename = os.path.join(log_path, 'legacy_avangrid-energymanager-nyseg_intervalusage_uat_log_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.log')
 
 print(log_path)
 print (log_filename)
@@ -66,14 +73,14 @@ logging.info('NY interval data transformation program has started.')
 cols_manifest = ["file_name", "file_size", "md5_checksum", "line_count"]
 rows_manifest = []
 # Declare manifest file name and add headers to the file. Output to the log file that the manifest file has been created.
-manifest_file_name = 'avangrid-energymanager-'+opco+'_manifestmdm_uat_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.tsv'
+manifest_file_name = 'avangrid-energymanager-nyseg_manifestmdm_uat_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.tsv'
 df_manifest = pd.DataFrame(rows_manifest, columns=cols_manifest)
 df_manifest.to_csv(os.path.join(output_path, manifest_file_name), header=True, index=False, sep ='\t', lineterminator='\r\n')
 logging.info(manifest_file_name + ' created.')
 logging.info('------------------------------------------------------')
 
 # Declare initial tsv filename. A new tsv filename will be given any time a file reaches 10 million rows.
-tsv_filename = 'avangrid-energymanager-'+opco+'_intervalusage_uat_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.tsv'
+tsv_filename = 'legacy_avangrid-energymanager-nyseg_intervalusage_uat_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.tsv'
 total_rows = 0 # This will represent count of rows so the script knows when to break to a new file.
 header = True # This flag is true until the headers are written to the file.
     
@@ -83,7 +90,6 @@ count = 0
 #    logging.info(date + ' - Folder has been opened.')
 #    temp_path = os.path.join(input_path, date)
 for filename in os.listdir(input_path):
-    print("processing file: "+ filename)
     # If the file found in the directory is not .xml, skip it.
     if not filename.endswith('.xml'): continue
     logging.info(filename + ' - Processing has started.')
@@ -100,7 +106,7 @@ for filename in os.listdir(input_path):
     fullname = os.path.join(input_path, filename) # Filename including the folder path.
     
     ################
-    # get an iterable of the xml tree. iterparse returns an iterator providing (event, elem) pairs.
+    # get an iterable of the xml tree.
     context = Xet.iterparse(fullname, events=("start", "end"))
 
     path = [] # Will hold the XML tree path as elements are iterated over
@@ -146,7 +152,6 @@ for filename in os.listdir(input_path):
                     #service_point_id = elem.attrib['ServicePointChannelID'].split(':')[0]
                     meter_id = elem.attrib['ServicePointChannelID'].split(':')[0]
                     channel_id = int(elem.attrib['ServicePointChannelID'].split(':')[1])
-                    #if meter_id not in(selected_ids): continue #NTT: check if id is on approved list, if not, skip
                     #try:
                     #    meter_id = hash_meter_ids[hash(service_point_id)]
                     #except KeyError:
@@ -155,10 +160,9 @@ for filename in os.listdir(input_path):
                 elif 'IntervalChannelID' in elem.attrib: # Get the meter ID.
                     meter_id = elem.attrib['IntervalChannelID'].split(':')[0]
                     channel_id = int(elem.attrib['IntervalChannelID'].split(':')[1])
-                    #if meter_id not in(selected_ids): continue #NTT: check if id is on approved list, if not, skip
                 else:
                     error = 'service point or meter ID not in XML file' # This error message will prevent the record from saving.
-
+                
                 # Energy direction mapping.
                 if channel_id == 1 or channel_id == 101:
                     energy_units = 'kWh'
@@ -239,23 +243,9 @@ for filename in os.listdir(input_path):
                     
                     # Declare data rows to be written to the file.
                     df = pd.DataFrame(rows, columns=cols)
-                    
-
-                    # NTT: First filter removes the ids not included in the approved_ids files
-                    dffilter1 = df.loc[df['meter_id'].isin(selected_ids)]
-
-                    # NTT: Second filter looks for the approved date (also in the approved ids files)
-                    # and removes the meters that dont check: Start time > Approved date
-                    date_merge_aux = dffilter1.merge(selected_ids_df, left_on='meter_id', right_on='Meterid', how='left', indicator=False )
-                    date_merge_aux['DateCheck'] = np.where(date_merge_aux['timestamp'] >= date_merge_aux['ApprovedDate'],True, False)
-
-                    dffilter2=date_merge_aux[date_merge_aux['DateCheck']]
-                    dffilter3=dffilter2.drop(columns=['DateCheck','Meterid','ApprovedDate'])
-
-                    print("writing "+str(len(dffilter3))+" lines to output file")
-                    dffilter3.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
-        
-                    
+                    #Drop '600..' meter ids as they are service point ids
+                    # Appends the data rows to the tsv file.
+                    df.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
                     # Header flag turns false after the first iteration.
                     header = False
                     
@@ -299,7 +289,7 @@ for filename in os.listdir(input_path):
                         rows_manifest = []
 
                         # Set the file name of the next .tsv file to be generated.
-                        tsv_filename = 'avangrid-energymanager-'+opco+'_intervalusage_uat_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.tsv'
+                        tsv_filename = 'legacy_avangrid-energymanager-nyseg_intervalusage_uat_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.tsv'
                         total_rows = 0
                         # Reset header flag so that the header is written to the next file on the first iteration.
                         header = True
@@ -315,30 +305,13 @@ for filename in os.listdir(input_path):
 
         # Declare data rows to be written to the file.
         df = pd.DataFrame(rows, columns=cols)
-
-        # NTT: First filter removes the ids not included in the approved_ids files
-        dffilter1 = df.loc[df['meter_id'].isin(selected_ids)]
-
-        # NTT: Second filter looks for the approved date (also in the approved ids files)
-        # and removes the meters that dont check: Start time > Approved date
-        date_merge_aux = dffilter1.merge(selected_ids_df, left_on='meter_id', right_on='Meterid', how='left', indicator=False )
-        date_merge_aux['DateCheck'] = np.where(date_merge_aux['timestamp'] >= date_merge_aux['ApprovedDate'],True, False)
-
-        dffilter2=date_merge_aux[date_merge_aux['DateCheck']]
-        dffilter3=dffilter2.drop(columns=['DateCheck','Meterid','ApprovedDate'])
-
-        print("writing "+str(len(dffilter3))+" lines to output file")
-        dffilter3.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
-        
+        #Remove '600' ids as they are service point ids
+        #df.drop(df[str(df['meter_id']).startswith('600')].index)
+        # Appends the data rows to the tsv file.
+        df.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
         # Header flag turns false after the first iteration.
         header = False
         
-        #pd.to_datetime('2018-10-26 12:00:00.0000000011',
-        #               '2022-12-05T01:00:00.000-05:00'
-        #       format='%Y-%m-%d %H:%M:%S.%f')
-
-
-
         # Record the total number of rows before clearing the list.
         total_rows += len(rows)
         rows = []
@@ -364,7 +337,7 @@ for filename in os.listdir(input_path):
             rows_manifest = []
 
             # Set the file name of the next .tsv file to be generated.
-            tsv_filename = 'avangrid-energymanager-'+opco+'_intervalusage_uat_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.tsv'
+            tsv_filename = 'legacy_avangrid-energymanager-nyseg_intervalusage_uat_' + datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3] + '.tsv'
             total_rows = 0
             # Reset header flag so that the header is written to the next file on the first iteration.
             header = True

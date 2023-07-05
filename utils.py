@@ -46,13 +46,12 @@ def approved_meters2(opco: str, meters_path: str):
         if opco == 'ALL':
             print("All files included: "+filename)
             df_temp = pd.read_csv(os.path.join(meters_path, filename), dtype=str)
-            df_temp_subs = df_temp[["Meterid"]]
+            df_temp_subs = df_temp[["Meterid","ApprovedDate"]]
             meters_df = pd.concat([meters_df,df_temp_subs],ignore_index=True)
-            print (df_temp.dtypes)
         elif opco in filename: 
             print(opco +" files included: "+filename)
             df_temp = pd.read_csv(os.path.join(meters_path, filename),dtype=str)
-            df_temp_subs = df_temp[["Meterid"]]
+            df_temp_subs = df_temp[["Meterid","ApprovedDate"]]
             meters_df = pd.concat([meters_df,df_temp_subs],ignore_index=True)
         else: continue
     return(meters_df)
