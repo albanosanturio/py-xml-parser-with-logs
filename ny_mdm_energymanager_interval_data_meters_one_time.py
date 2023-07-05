@@ -45,7 +45,7 @@ f.close()
 # Parse the arguments given to the script
 # Create a list of selected_ids based on the file provided, and filtered by selected opco
 opco = utils.parse_opco()
-selected_ids_df = utils.approved_meters2(opco,approved_ids_path)
+selected_ids_df = utils.approved_meters(opco,approved_ids_path)
 selected_ids = set(selected_ids_df['Meterid'])
 
 
@@ -241,15 +241,15 @@ for filename in os.listdir(input_path):
 
                     # NTT: First filter removes the ids not included in the approved_ids files
                     dffilter1 = df.loc[df['meter_id'].isin(selected_ids)]
-            
+
                     # NTT: Second filter looks for the approved date (also in the approved ids files)
                     # and removes the meters that dont check: Start time > Approved date
                     date_merge_aux = dffilter1.merge(selected_ids_df, left_on='meter_id', right_on='Meterid', how='left', indicator=False )
                     date_merge_aux['DateCheck'] = np.where(date_merge_aux['timestamp'] >= date_merge_aux['ApprovedDate'],True, False)
-            
+
                     dffilter2=date_merge_aux[date_merge_aux['DateCheck']]
                     dffilter3=dffilter2.drop(columns=['DateCheck','Meterid','ApprovedDate'])
-            
+
                     print("writing "+str(len(dffilter3))+" lines to output file")
                     dffilter3.to_csv(os.path.join(output_path, tsv_filename), index=False, sep ='\t', header=header, mode='a', lineterminator='\n')
         
