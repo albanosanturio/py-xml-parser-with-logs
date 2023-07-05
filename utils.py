@@ -25,21 +25,10 @@ def parse_opco():
 
 # NTT:
 # Function takes opco and the path to the approved meters csv
-# Returns a filtered list of meters
+# If opco = ALL, it picks up all the meter files
+# if opco is NYSEG or RGE, it filters just the files containing that string in filename
+# Returns a filtered df, with columns Meterid, ApprovedDate
 def approved_meters(opco: str, meters_path: str):
-    df_approved_meters = pd.read_csv(meters_path)
-    df_approved_meters["Meterid"] = df_approved_meters["Meterid"].astype("string")
-    if opco == "ALL":
-        selected_ids = df_approved_meters["Meterid"]
-    else:
-        selected_ids = (df_approved_meters.loc[df_approved_meters["OPCO"] == opco])["Meterid"]
-    return set(selected_ids)
-
-
-# NTT:
-# Function takes opco and the path to the approved meters csv
-# Returns a filtered list of meters
-def approved_meters2(opco: str, meters_path: str):
     meters_df = pd.DataFrame(columns=[])
     for filename in os.listdir(meters_path):
         if not filename.endswith('.csv'): continue
