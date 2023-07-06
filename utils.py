@@ -45,12 +45,3 @@ def approved_meters(opco: str, meters_path: str):
         else: continue
     return(meters_df)
     
-
-"""  
-if 'TimePeriod' in path: # Get timestamp.
-timestamp_datetime = dt_parse(elem.attrib['StartTime'])
-timestamp_datetime = timestamp_datetime.astimezone(pytz.timezone('US/Eastern')) + timedelta(minutes=int(interval_value))
-timestamp_save = timestamp_datetime.astimezone(pytz.timezone('US/Eastern')) # Changes timezone if daylight savings is crossed.
-timezone = datetime.strftime(timestamp_save, "%Z")
- 
- """

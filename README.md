@@ -9,10 +9,46 @@ It's also needed to filter out some unneeded readings:
     - Process only meters of the selected company (opco)
 
 #### Requirements:
-Approved ids files
-Config.json file
-Arguments
 
+
+##### Config.json file
+In the same folder as the script there must be a .json config file containing the paths used (input, output, errors, logs, approved ids)
+
+{
+    "paths": {
+        "input_path": ".\\in",
+        "output_path": ".\\out",
+        "error_path": ".\\errors",
+        "log_path": ".\\logs",
+        "approved_ids_path": ".\\approved_ids"
+    }
+}
+
+##### Approved ids files
+In the approved_ids_path there must be .csv files containing the meters that are ok to be processed.
+Files have to be separated by opco, which has to be in the name.
+There may be more that one file for each opco. 
+The script will pick up only the files for the opco selected
+
+Sample files in path:
+approved_ids_NYSEG_part1.csv
+approved_ids_NYSEG_part2.csv
+approved_ids_RGE_part1.csv
+approved_ids_RGE_part2.csv
+approved_ids_RGE_part3.csv
+
+
+Each file is expected to have this format, at least the 'Meterid' and 'ApprovedDate' columns:
+
+Contract Account,Meterid,CoCd,OPCO,ApprovedDate
+xxxxxxxxxxx,102976527,1000,RGE,2023-04-05
+xxxxxxxxxxx,102976573,1000,RGE,2023-04-05
+
+##### Arguments
+To run the script you have to pass 1 argument selecting opco:
+>python script.py NYSEG    
+>python script.py RGE      
+>python script.py ALL  
 
 
 #### Sample .XML input

@@ -14,6 +14,7 @@ import sys
 import numpy as np
 import csv
 
+
 # Sets the correct timezone for the interval times.
 def dt_parse(t):
     ret = pytz.timezone('UTC').localize(datetime.strptime(t[0:18],'%Y-%m-%dT%H:%M:%S'))
@@ -77,9 +78,7 @@ header = True # This flag is true until the headers are written to the file.
     
 # Iterate through all xml files from the source "in" folder.
 count = 0
-#for date in date_folders:
-#    logging.info(date + ' - Folder has been opened.')
-#    temp_path = os.path.join(input_path, date)
+
 for filename in os.listdir(input_path):
     print("processing file: "+ filename)
     # If the file found in the directory is not .xml, skip it.
@@ -122,7 +121,7 @@ for filename in os.listdir(input_path):
                     energy_type = 'E'
 
                 # If the file is a Register file, skip and do not write any data from it.
-                #if elem.attrib['IsRegister'] == 'true':
+                # if elem.attrib['IsRegister'] == 'true':
                 #    isRegister_file = True
                 #    break
 
@@ -144,12 +143,7 @@ for filename in os.listdir(input_path):
                     #service_point_id = elem.attrib['ServicePointChannelID'].split(':')[0]
                     meter_id = elem.attrib['ServicePointChannelID'].split(':')[0]
                     channel_id = int(elem.attrib['ServicePointChannelID'].split(':')[1])
-                    #if meter_id not in(selected_ids): continue #NTT: check if id is on approved list, if not, skip
-                    #try:
-                    #    meter_id = hash_meter_ids[hash(service_point_id)]
-                    #except KeyError:
-                    #    logging.info('Service Point ID ' + service_point_id + ' not found to get meter ID.')
-                    #    meter_id = None
+
                 elif 'IntervalChannelID' in elem.attrib: # Get the meter ID.
                     meter_id = elem.attrib['IntervalChannelID'].split(':')[0]
                     channel_id = int(elem.attrib['IntervalChannelID'].split(':')[1])
@@ -246,7 +240,8 @@ for filename in os.listdir(input_path):
                     # and removes the meters that dont check: Start time > Approved date
                     date_merge_aux = dffilter1.merge(selected_ids_df, left_on='meter_id', right_on='Meterid', how='left', indicator=False )
                     date_merge_aux['DateCheck'] = np.where(date_merge_aux['timestamp'] >= date_merge_aux['ApprovedDate'],True, False)
-
+                    
+                    #NTT: We keep the values with 'DateCheck' = True
                     dffilter2=date_merge_aux[date_merge_aux['DateCheck']]
                     dffilter3=dffilter2.drop(columns=['DateCheck','Meterid','ApprovedDate'])
 
@@ -331,12 +326,6 @@ for filename in os.listdir(input_path):
         # Header flag turns false after the first iteration.
         header = False
         
-        #pd.to_datetime('2018-10-26 12:00:00.0000000011',
-        #               '2022-12-05T01:00:00.000-05:00'
-        #       format='%Y-%m-%d %H:%M:%S.%f')
-
-
-
         # Record the total number of rows before clearing the list.
         total_rows += len(rows)
         rows = []
@@ -412,5 +401,4 @@ with open(os.path.join(output_path, manifest_file_name), 'rb+') as filehandle:
     filehandle.seek(-2, os.SEEK_END)
     filehandle.truncate()
 logging.info(manifest_file_name + ' was completed successfully.')
-
 logging.info('Total Runtime: ' + str(_time.time() - start) + ' seconds')
