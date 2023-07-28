@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="us-ascii" standalone="yes"?>
+<MeterReadingDocument xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ReadingStatusRefTable>
+    <ReadingStatusRef Ref="58">
+      <UnencodedStatus SourceValidation="NV">
+        <StatusCodes>
+          <Code>NV</Code>
+          <Code>VEESET1PV</Code>
+          <Code>VEESET2NV</Code>
+          <Code>VEESET3NV</Code>
+        </StatusCodes>
+      </UnencodedStatus>
+    </ReadingStatusRef>
+    <ReadingStatusRef Ref="60">
+      <UnencodedStatus SourceValidation="NV">
+        <StatusCodes>
+          <Code>NV</Code>
+          <Code>VEESET1NV</Code>
+          <Code>VEESET2NV</Code>
+          <Code>VEESET3NV</Code>
+        </StatusCodes>
+      </UnencodedStatus>
+    </ReadingStatusRef>
+  </ReadingStatusRefTable>
+  <Header>
+    <IEE_System Id="FIUPORMDM51" />
+    <Creation_Datetime Datetime="2023-04-05T07:01:20Z" />
+    <Timezone Id="GMTNoDst" />
+    <Path FilePath="\\clornas01\NYMDMSHAREP1\Export\MeterReadingSync\Working\MRS638162604807569533.xml" />
+    <Export_Template Id="MeterReadingSynchronizerTemplate" />
+  </Header>
+  <ImportExportParameters CreateResubmitFile="false" CreateReadingGroupForRegisterReads="true">
+    <DataFormat ReadingTimestampType="MeterDefault" DSTTransitionType="ITRON_Compliant" />
+  </ImportExportParameters>
+  <Channels>
+    <Channel IsRegister="false" MarketType="Electric" IntervalLength="15" NumberOfDials="-1" PulseMultiplier="-1" PressureCompensationFactor="-1" IsReadingDecoded="true" ReadingsInPulse="false">
+      <ChannelID IntervalChannelID="102976573:1" />
+      <ContiguousIntervalSets>
+        <ContiguousIntervalSet NumberOfReadings="3">
+          <TimePeriod StartTime="2023-04-04T04:00:00Z" EndTime="2023-04-05T04:00:00Z" />
+          <Readings>
+            <Reading Value="754" StatusRef="58" />
+            <Reading Value="255" StatusRef="58" />
+            <Reading Value="336" StatusRef="58" />
+          </Readings>
+        </ContiguousIntervalSet>
+      </ContiguousIntervalSets>
+    </Channel>
+    <Channel IsRegister="false" MarketType="Electric" IntervalLength="15" NumberOfDials="-1" PulseMultiplier="-1" PressureCompensationFactor="-1" IsReadingDecoded="true" ReadingsInPulse="false">
+      <ChannelID IntervalChannelID="102976527:1" />
+      <ContiguousIntervalSets>
+        <ContiguousIntervalSet NumberOfReadings="5">
+          <TimePeriod StartTime="2023-04-04T04:00:00Z" EndTime="2023-04-05T04:00:00Z" />
+          <Readings>
+            <Reading Value="49" StatusRef="58" />
+            <Reading Value="56" StatusRef="58" />
+            <Reading Value="80" StatusRef="58" />
+            <Reading Value="75" StatusRef="58" />
+            <Reading Value="69" StatusRef="58" />
+          </Readings>
+        </ContiguousIntervalSet>
+      </ContiguousIntervalSets>
+    </Channel>
+    <Channel IsRegister="false" MarketType="Electric" IntervalLength="15" NumberOfDials="-1" PulseMultiplier="-1" PressureCompensationFactor="-1" IsReadingDecoded="true" ReadingsInPulse="false">
+      <ChannelID IntervalChannelID="102976496:1" />
+      <ContiguousIntervalSets>
+        <ContiguousIntervalSet NumberOfReadings="4">
+          <TimePeriod StartTime="2023-04-04T04:00:00Z" EndTime="2023-04-05T04:00:00Z" />
+          <Readings>
+            <Reading Value="72" StatusRef="58" />
+            <Reading Value="55" StatusRef="58" />
+            <Reading Value="58" StatusRef="58" />
+            <Reading Value="84" StatusRef="58" />
+          </Readings>
+        </ContiguousIntervalSet>
+      </ContiguousIntervalSets>
+    </Channel>
+    <Channel IsRegister="false" MarketType="Electric" IntervalLength="15" NumberOfDials="-1" PulseMultiplier="-1" PressureCompensationFactor="-1" IsReadingDecoded="true" ReadingsInPulse="false">
+      <ChannelID IntervalChannelID="102976537:1" />
+      <ContiguousIntervalSets>
+        <ContiguousIntervalSet NumberOfReadings="5">
+          <TimePeriod StartTime="2023-04-04T04:00:00Z" EndTime="2023-04-05T04:00:00Z" />
+          <Readings>
+            <Reading Value="73" StatusRef="58" />
+            <Reading Value="81" StatusRef="58" />
+            <Reading Value="294" StatusRef="58" />
+            <Reading Value="62" StatusRef="58" />
+            <Reading Value="46" StatusRef="58" />
+          </Readings>
+        </ContiguousIntervalSet>
+      </ContiguousIntervalSets>
+    </Channel>
+    <Channel IsRegister="false" MarketType="Electric" IntervalLength="15" NumberOfDials="-1" PulseMultiplier="-1" PressureCompensationFactor="-1" IsReadingDecoded="true" ReadingsInPulse="false">
+      <ChannelID IntervalChannelID="102976525:1" />
+      <ContiguousIntervalSets>
+        <ContiguousIntervalSet NumberOfReadings="4">
+          <TimePeriod StartTime="2023-04-04T04:00:00Z" EndTime="2023-04-05T04:00:00Z" />
+          <Readings>
+            <Reading Value="5" StatusRef="58" />
+            <Reading Value="4" StatusRef="58" />
+            <Reading Value="4" StatusRef="58" />
+            <Reading Value="5" StatusRef="58" />
+          </Readings>
+        </ContiguousIntervalSet>
+      </ContiguousIntervalSets>
+    </Channel>
+  </Channels>
+    <Channel IsRegister="false" MarketType="Electric" IntervalLength="15" NumberOfDials="-1" PulseMultiplier="-1" PressureCompensationFactor="-1" IsReadingDecoded="true" ReadingsInPulse="false">
+    <ChannelID ServicePointChannelID="6001118806:1"/>
+        <ContiguousIntervalSets>
+            <ContiguousIntervalSet NumberOfReadings="3">
+            <TimePeriod StartTime="2022-12-05T05:00:00Z" EndTime="2022-12-06T05:00:00Z"/>
+                <Readings>
+                    <Reading Value="0" StatusRef="62"/>
+                    <Reading Value="0" StatusRef="62"/>
+                    <Reading Value="0" StatusRef="62"/>
+                </Readings>
+            </ContiguousIntervalSet>
+        </ContiguousIntervalSets>
+    </Channel>  
+    <Channel IsRegister="false" MarketType="Electric" IntervalLength="15" NumberOfDials="-1" PulseMultiplier="-1" PressureCompensationFactor="-1" IsReadingDecoded="true" ReadingsInPulse="false">
+    <ChannelID ServicePointChannelID="6001118849:1"/>
+        <ContiguousIntervalSets>
+            <ContiguousIntervalSet NumberOfReadings="4">
+            <TimePeriod StartTime="2022-12-05T05:00:00Z" EndTime="2022-12-06T05:00:00Z"/>
+                <Readings>
+                    <Reading Value="0" StatusRef="62"/>
+                    <Reading Value="0.116" StatusRef="59"/>
+                    <Reading Value="0.089" StatusRef="59"/>
+                    <Reading Value="0" StatusRef="62"/>
+                </Readings>
+            </ContiguousIntervalSet>
+        </ContiguousIntervalSets>
+    </Channel>
+    <Channel IsRegister="false" MarketType="Electric" IntervalLength="15" NumberOfDials="-1" PulseMultiplier="-1" PressureCompensationFactor="-1" IsReadingDecoded="true" ReadingsInPulse="false">
+    <ChannelID ServicePointChannelID="6001123361:1"/>
+        <ContiguousIntervalSets>
+            <ContiguousIntervalSet NumberOfReadings="3">
+                <TimePeriod StartTime="2022-12-05T05:00:00Z" EndTime="2022-12-06T05:00:00Z"/>
+                <Readings>
+                    <Reading Value="0.062" StatusRef="59"/>
+                    <Reading Value="0" StatusRef="62"/>
+                    <Reading Value="0.127" StatusRef="59"/>
+                </Readings>
+            </ContiguousIntervalSet>
+        </ContiguousIntervalSets>
+    </Channel>
+</MeterReadingDocument>
